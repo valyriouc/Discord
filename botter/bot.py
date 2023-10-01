@@ -1,21 +1,12 @@
 import discord
 import socket 
-
-def get_info():
-    info = {}
-    with open("../auths.txt", "r") as fobj:
-        for line in fobj.readlines():
-            print(line)
-            res = line.split(":")
-        
-            key = res[0].strip()
-            value = res[1].strip()
-
-            info[key] = value
-    return info 
+import common.credentials as creds
+import common.bots as bots 
 
 def run_discord_bot():
-    info = get_info()
+    info = creds.Credentials.get(
+        "../auths.txt", 
+        bots.Bot.botter)
 
     TOKEN = info["Token"]
 
