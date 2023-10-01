@@ -47,6 +47,7 @@ class Credentials:
             offset += 1
         return (block, offset)
 
+    # TODO: Separate the parsing and the getting of the credentials 
     def __map_names(self, name: str) -> bots.Bot:
         if name == "Botter":
             return bots.Bot.botter
