@@ -1,4 +1,4 @@
-import bots
+import common.bots as bots
 
 class Credentials:
     def __init__(self, filename: str) -> None:
