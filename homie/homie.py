@@ -33,19 +33,76 @@ class HomieBot(discord.Client):
             return
         if not message.content.startswith("!"):
             return 
-        print(message.content)
-        data = self.__parse_message(message.content)  
-        output = self.dataProvider.request_data(data)
+        data = None
+        try:
+            data = self.__parse_message(message.content)  
+        except ValueError as e:
+            await message.reply(e)
+
+        if not data["success"]:
+            await message.reply(data["error"])
+            return
+
+        # Validate commands if they exists and have the necessary properties 
+        output = self.dataProvider.request_data(data["commands"])
         await message.reply(output)
     
-    def __parse_message(self, message: str):
-        data = {}
+    def __parse_message(self, message: str) -> object:
+        data = {
+            "success": True,
+            "error": "",
+            "commands": []
+        }
+        readWithContent = False
         parts = message.split(",")
         for it in range(0, len(parts)):
-            keyword = parts[it].replace("!", "")
-            data[keyword] = ""
+            command = parts[it].replace("!", "").strip()
+            commandDesc = None
+            if readWithContent:
+                data["success"] = False
+                data["error"] = "Only one command is allowed when this command has content"
+            if ":" in command:
+                # parse a command with content
+                commandDesc = HomieBot.__parse_with_content(command)
+                readWithContent = True
+                pass
+            else:
+                # parse command without content 
+                commandDesc = HomieBot.__parse_without_content(command)
+                pass 
+            data["commands"].append(commandDesc)
         return data
     
+
+    @staticmethod
+    def __parse_with_content(command: str) -> object:
+        comm = {
+            "identifier": "",
+            "content": "",
+            "hasContent": True
+        }
+        commandParts = command.split(":")
+        if (len(commandParts) != 2):
+            raise ValueError("Malformed command detected")
+        # Normilize input
+        for it in range(0, 2):
+            commandParts[it] = commandParts[it].strip()
+        if (commandParts[1] == ""):
+            raise ValueError("Expected content but got empty string")
+        comm["identifier"] = commandParts[0]
+        comm["content"] = commandParts[1]
+        return comm
+    
+    @staticmethod 
+    def __parse_without_content(command: str) -> object:
+        comm = {
+            "identifier": "",
+            "content": "",
+            "hasContent": False
+        }
+        comm["identifier"] = command
+        return comm
+
 info = creds.Credentials.get(
         "../auths.txt",
         bots.Bot.homie)

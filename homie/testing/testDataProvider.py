@@ -9,14 +9,19 @@ class TestDataProvider(DataProvider):
     def request_data(self, data: dict):
         res = ""
         first = True
-        for key in data.keys():
+        for command in data:
             if not first:
                 res += ","
-            if key == "temp":
+            if command["identifier"] == "temp":
                 res += f" {self.temp}"
-            if key == "humid":
+            if command["identifier"] == "humid":
                 res += f" {self.humidity}"
-            if key == "press":
+            if command["identifier"] == "press":
                 res += f" {self.pressure}"
+            if command["identifier"] == "LED":
+                res = "LEDs will be turned on"
+                break
+            if command["identifier"] == "Change text":
+                res = f"Reset LED matrix text to {(command['content'])}"
             first = False
         return res
