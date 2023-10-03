@@ -43,6 +43,11 @@ class HomieBot(discord.Client):
             await message.reply(data["error"])
             return
 
+        valid, msg = HomieBot.__validate__commands(data["commands"])
+        if not valid:
+            await message.reply(msg)
+            return 
+        
         # Validate commands if they exists and have the necessary properties 
         output = self.dataProvider.request_data(data["commands"])
         await message.reply(output)
@@ -73,6 +78,32 @@ class HomieBot(discord.Client):
             data["commands"].append(commandDesc)
         return data
     
+    @staticmethod
+    def __validate__commands(commands: list) -> (bool, str):
+        mapping = {
+            "temp": {
+                "hasContent": False
+            },
+            "humid": {
+                "hasContent": False
+            },
+            "press": {
+                "hasContent": False
+            },
+            "LED": {
+                "hasContent": False
+            },
+            "change text": {
+                "hasContent": True
+            }
+        }
+
+        for command in commands:
+            if (not command["identifier"] in mapping.keys()):
+                return (False, "Command does not exists!")
+            if (command["hasContent"] != mapping[command["identifier"]]["hasContent"]):
+                return (False, "Content was specified but command does not accepts content")
+        return (True, "")
 
     @staticmethod
     def __parse_with_content(command: str) -> object:

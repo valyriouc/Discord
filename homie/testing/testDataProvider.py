@@ -22,6 +22,6 @@ class TestDataProvider(DataProvider):
                 res = "LEDs will be turned on"
                 break
             if command["identifier"] == "Change text":
-                res = f"Reset LED matrix text to {(command['content'])}"
+                res = f"Reset LED matrix to {(command['content'])}"
             first = False
         return res
